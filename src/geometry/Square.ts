@@ -15,16 +15,104 @@ class Square extends Drawable {
 
   create() {
 
-  this.indices = new Uint32Array([0, 1, 2,
-                                  0, 2, 3]);
-  this.normals = new Float32Array([0, 0, 1, 0,
-                                   0, 0, 1, 0,
-                                   0, 0, 1, 0,
-                                   0, 0, 1, 0]);
-  this.positions = new Float32Array([-1, -1, 0, 1,
-                                     1, -1, 0, 1,
-                                     1, 1, 0, 1,
-                                     -1, 1, 0, 1]);
+      this.positions = new Float32Array([
+          //left
+          -1, -1, -1, 1,
+          -1, -1,  1, 1,
+          -1,  1, -1, 1,
+          -1,  1,  1, 1,
+
+          //right
+           1, -1, -1, 1,
+           1, -1,  1, 1,
+           1,  1, -1, 1,
+           1,  1,  1, 1,
+
+          //top
+          -1,  1, -1, 1,
+          -1,  1,  1, 1,
+           1,  1, -1, 1,
+           1,  1,  1, 1,
+
+          //bottom
+          -1, -1, -1, 1,
+          -1, -1,  1, 1,
+          1,  -1, -1, 1,
+          1,  -1,  1, 1,
+
+          //back
+          -1, -1, -1, 1,
+          -1,  1, -1, 1,
+          1, -1, -1, 1,
+          1,  1, -1, 1,
+
+          //front
+          -1, -1, 1, 1,
+          -1,  1, 1, 1,
+           1, -1, 1, 1,
+           1,  1, 1, 1
+      ]);
+      this.indices = new Uint32Array([
+        //left side
+        0, 1, 2,
+        1, 2, 3,
+        //right side
+        4, 5, 6,
+        5, 6, 7,
+        //top
+        8, 9, 10,
+        9, 10, 11,
+        //bottom
+        12, 13, 14,
+        13, 14, 15,
+        //back
+        16, 17, 18,
+        17, 18, 19,
+        //front
+        20, 21, 22,
+        21, 22, 23
+    ]);
+    this.normals = new Float32Array([
+        //left
+        -1,  0,  0, 0,
+        -1,  0,  0, 0,
+        -1,  0,  0, 0,
+        -1,  0,  0, 0,
+        //right
+        1,  0,  0, 0,
+        1,  0,  0, 0,
+        1,  0,  0, 0,
+        1,  0,  0, 0,
+        //top
+        0, 1, 0, 0,
+        0, 1, 0, 0,
+        0, 1, 0, 0,
+        0, 1, 0, 0,
+        //bottom
+        0, -1, 0, 0,
+        0, -1, 0, 0,
+        0, -1, 0, 0,
+        0, -1, 0, 0,
+        //back
+        0, 0, -1, 0,
+        0, 0, -1, 0,
+        0, 0, -1, 0,
+        0, 0, -1, 0,
+        //front
+        0, 0, 1, 0,
+        0, 0, 1, 0,
+        0, 0, 1, 0,
+        0, 0, 1, 0
+
+    ]);
+
+    //adjust positions to proscribed center
+    for(let i =0; i < 24; i++) {
+      this.positions[i*4] += this.center[0];
+      this.positions[i*4 + 1] += this.center[1];
+      this.positions[i*4 + 2] += this.center[2];
+    }
+
 
     this.generateIdx();
     this.generatePos();

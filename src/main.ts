@@ -20,9 +20,9 @@ let square: Square;
 let prevTesselations: number = 5;
 
 function loadScene() {
-  icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
+  icosphere = new Icosphere(vec3.fromValues(1.25, 0, 0), 1, controls.tesselations);
   icosphere.create();
-  square = new Square(vec3.fromValues(0, 0, 0));
+  square = new Square(vec3.fromValues(-1.25, 0, 0));
   square.create();
 }
 
@@ -78,7 +78,7 @@ function main() {
     }
     renderer.render(camera, lambert, [
       icosphere,
-      // square,
+      square
     ]);
     stats.end();
 
