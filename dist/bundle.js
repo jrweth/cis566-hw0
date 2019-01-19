@@ -5980,6 +5980,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 const controls = {
     tesselations: 5,
     'Load Scene': loadScene,
+    'Color Red': 1,
+    'Color Green': 0,
+    'Color Blue': 0,
+    'Alpha': 1
 };
 let icosphere;
 let square;
@@ -6002,6 +6006,10 @@ function main() {
     const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
     gui.add(controls, 'tesselations', 0, 8).step(1);
     gui.add(controls, 'Load Scene');
+    gui.add(controls, 'Color Red', 0, 1).step(0.1);
+    gui.add(controls, 'Color Green', 0, 1).step(0.1);
+    gui.add(controls, 'Color Blue', 0, 1).step(0.1);
+    gui.add(controls, 'Alpha', 0, 1).step(0.1);
     // get canvas and webgl context
     const canvas = document.getElementById('canvas');
     const gl = canvas.getContext('webgl2');
@@ -6027,6 +6035,7 @@ function main() {
         stats.begin();
         gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         renderer.clear();
+        renderer.setGeometryColor(controls["Color Red"], controls["Color Green"], controls["Color Blue"], controls["Alpha"]);
         if (controls.tesselations != prevTesselations) {
             prevTesselations = controls.tesselations;
             icosphere = new __WEBPACK_IMPORTED_MODULE_3__geometry_Icosphere__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec3 */].fromValues(0, 0, 0), 1, prevTesselations);
@@ -13339,9 +13348,13 @@ class Square extends __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__["a" /*
 class OpenGLRenderer {
     constructor(canvas) {
         this.canvas = canvas;
+        this.color = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec4 */].fromValues(0, 0, 1, 1);
     }
     setClearColor(r, g, b, a) {
         __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].clearColor(r, g, b, a);
+    }
+    setGeometryColor(r, g, b, a) {
+        this.color = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec4 */].fromValues(r, g, b, a);
     }
     setSize(width, height) {
         this.canvas.width = width;
@@ -13353,12 +13366,11 @@ class OpenGLRenderer {
     render(camera, prog, drawables) {
         let model = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
         let viewProj = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
-        let color = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec4 */].fromValues(1, 0, 0, 1);
         __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].identity(model);
         __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
         prog.setModelMatrix(model);
         prog.setViewProjMatrix(viewProj);
-        prog.setGeometryColor(color);
+        prog.setGeometryColor(this.color);
         for (let drawable of drawables) {
             prog.draw(drawable);
         }
