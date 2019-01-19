@@ -1,4 +1,4 @@
-import {vec3} from 'gl-matrix';
+import {vec3,vec4} from 'gl-matrix';
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Icosphere from './geometry/Icosphere';
@@ -13,6 +13,10 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 const controls = {
   tesselations: 5,
   'Load Scene': loadScene, // A function pointer, essentially
+  'Color Red': 1,
+  'Color Green': 0,
+  'Color Blue': 0,
+  'Alpha': 1
 };
 
 let icosphere: Icosphere;
@@ -39,6 +43,10 @@ function main() {
   const gui = new DAT.GUI();
   gui.add(controls, 'tesselations', 0, 8).step(1);
   gui.add(controls, 'Load Scene');
+  gui.add(controls, 'Color Red', 0, 1).step(0.1);
+  gui.add(controls, 'Color Green', 0, 1).step(0.1);
+  gui.add(controls, 'Color Blue', 0,1).step(0.1);
+  gui.add(controls, 'Alpha', 0,1).step(0.1);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -70,6 +78,12 @@ function main() {
     stats.begin();
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
+    renderer.setGeometryColor(
+      controls["Color Red"],
+      controls["Color Green"],
+      controls["Color Blue"],
+      controls["Alpha"]
+    );
     if(controls.tesselations != prevTesselations)
     {
       prevTesselations = controls.tesselations;
