@@ -7,11 +7,16 @@ import ShaderProgram from './ShaderProgram';
 // In this file, `gl` is accessible because it is imported above
 class OpenGLRenderer {
   color: vec4 = vec4.fromValues(0, 0, 1, 1);
+  time: number = 0;
   constructor(public canvas: HTMLCanvasElement) {
   }
 
   setClearColor(r: number, g: number, b: number, a: number) {
     gl.clearColor(r, g, b, a);
+  }
+
+  setTime(time: number) {
+    this.time = time;
   }
 
   setGeometryColor(r: number, g: number, b: number, a:number) {
@@ -36,6 +41,7 @@ class OpenGLRenderer {
     prog.setModelMatrix(model);
     prog.setViewProjMatrix(viewProj);
     prog.setGeometryColor(this.color);
+    prog.setTime(this.time);
 
     for (let drawable of drawables) {
       prog.draw(drawable);

@@ -29,13 +29,22 @@ class ShaderProgram {
   unifModelInvTr: WebGLUniformLocation;
   unifViewProj: WebGLUniformLocation;
   unifColor: WebGLUniformLocation;
+  unifTime: WebGLUniformLocation;
 
-  constructor(shaders: Array<Shader>) {
+  vertexShader: Shader;
+  fragmentShader: Shader;
+
+  constructor(vertexShader: Shader, fragmentShader: Shader) {
+    this.vertexShader = vertexShader;
+    this.fragmentShader = fragmentShader;
+    this.initGl();
+  }
+
+  initGl() {
     this.prog = gl.createProgram();
+    gl.attachShader(this.prog, this.vertexShader.shader);
+    gl.attachShader(this.prog, this.fragmentShader.shader);
 
-    for (let shader of shaders) {
-      gl.attachShader(this.prog, shader.shader);
-    }
     gl.linkProgram(this.prog);
     if (!gl.getProgramParameter(this.prog, gl.LINK_STATUS)) {
       throw gl.getProgramInfoLog(this.prog);
@@ -48,6 +57,7 @@ class ShaderProgram {
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifColor      = gl.getUniformLocation(this.prog, "u_Color");
+    this.unifTime       = gl.getUniformLocation(this.prog, "u_Time");
   }
 
   use() {
@@ -83,6 +93,18 @@ class ShaderProgram {
     if (this.unifColor !== -1) {
       gl.uniform4fv(this.unifColor, color);
     }
+  }
+
+  setTime(time: number) {
+    this.use();
+    if(this.unifTime !== -1) {
+      gl.uniform1f(this.unifTime, time);
+    }
+  }
+
+  setVertexShader(vertexShader: Shader) {
+    this.vertexShader = vertexShader;
+    this.initGl();
   }
 
   draw(d: Drawable) {

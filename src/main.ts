@@ -16,12 +16,15 @@ const controls = {
   'Color Red': 1,
   'Color Green': 0,
   'Color Blue': 0,
-  'Alpha': 1
+  'Alpha': 1,
+  'Vertex Shader': 'lambert'
 };
 
 let icosphere: Icosphere;
 let square: Square;
 let prevTesselations: number = 5;
+let prevVertexShader: string = 'wave';
+let prevFragmentShader: string = 'lambert';
 
 function loadScene() {
   icosphere = new Icosphere(vec3.fromValues(1.25, 0, 0), 1, controls.tesselations);
@@ -47,6 +50,7 @@ function main() {
   gui.add(controls, 'Color Green', 0, 1).step(0.1);
   gui.add(controls, 'Color Blue', 0,1).step(0.1);
   gui.add(controls, 'Alpha', 0,1).step(0.1);
+  gui.add(controls, 'Vertex Shader',['lambert', 'wave']);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -67,13 +71,15 @@ function main() {
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
   gl.enable(gl.DEPTH_TEST);
 
-  const lambert = new ShaderProgram([
-    new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert.glsl')),
-    new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
-  ]);
+  const shader = new ShaderProgram(
+    new Shader(gl.VERTEX_SHADER, require('./shaders/' + controls["Vertex Shader"] +'-vert.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl'))
+  );
 
+  let time:number = 0;
   // This function will be called every frame
   function tick() {
+    time++;
     camera.update();
     stats.begin();
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
@@ -84,13 +90,18 @@ function main() {
       controls["Color Blue"],
       controls["Alpha"]
     );
+    renderer.setTime(time);
     if(controls.tesselations != prevTesselations)
     {
       prevTesselations = controls.tesselations;
       icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, prevTesselations);
       icosphere.create();
     }
-    renderer.render(camera, lambert, [
+    if(controls["Vertex Shader"] != prevVertexShader) {
+      shader.setVertexShader(new Shader(gl.VERTEX_SHADER, require('./shaders/'+ controls["Vertex Shader"] +'-vert.glsl')))
+      prevVertexShader = controls["Vertex Shader"];
+    }
+    renderer.render(camera, shader, [
       icosphere,
       square
     ]);
