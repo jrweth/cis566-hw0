@@ -17,19 +17,20 @@ const controls = {
   'Color Green': 0,
   'Color Blue': 0,
   'Alpha': 1,
-  'Vertex Shader': 'lambert'
+  'Vertex Shader': 'lambert',
+  'Fragment Shader': 'polka-dot'
 };
 
 let icosphere: Icosphere;
 let square: Square;
 let prevTesselations: number = 5;
-let prevVertexShader: string = 'wave';
-let prevFragmentShader: string = 'lambert';
+let prevVertexShader: string = 'lambert';
+let prevFragmentShader: string = 'polka-dot';
 
 function loadScene() {
-  icosphere = new Icosphere(vec3.fromValues(1.25, 0, 0), 1, controls.tesselations);
+  icosphere = new Icosphere(vec3.fromValues(2, 0, 0), 1, controls.tesselations);
   icosphere.create();
-  square = new Square(vec3.fromValues(-1.25, 0, 0));
+  square = new Square(vec3.fromValues(-2, 0, 0));
   square.create();
 }
 
@@ -51,6 +52,7 @@ function main() {
   gui.add(controls, 'Color Blue', 0,1).step(0.1);
   gui.add(controls, 'Alpha', 0,1).step(0.1);
   gui.add(controls, 'Vertex Shader',['lambert', 'wave']);
+  gui.add(controls, 'Fragment Shader',['lambert', 'polka-dot']);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -73,7 +75,7 @@ function main() {
 
   const shader = new ShaderProgram(
     new Shader(gl.VERTEX_SHADER, require('./shaders/' + controls["Vertex Shader"] +'-vert.glsl')),
-    new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl'))
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/' + controls["Fragment Shader"] +'-frag.glsl'))
   );
 
   let time:number = 0;
@@ -100,6 +102,10 @@ function main() {
     if(controls["Vertex Shader"] != prevVertexShader) {
       shader.setVertexShader(new Shader(gl.VERTEX_SHADER, require('./shaders/'+ controls["Vertex Shader"] +'-vert.glsl')))
       prevVertexShader = controls["Vertex Shader"];
+    }
+    if(controls["Fragment Shader"] != prevFragmentShader) {
+      shader.setFragmentShader(new Shader(gl.FRAGMENT_SHADER, require('./shaders/' + controls["Fragment Shader"] + '-frag.glsl')));
+      prevFragmentShader= controls["Fragment Shader"];
     }
     renderer.render(camera, shader, [
       icosphere,

@@ -13,6 +13,8 @@ precision highp float;
 
 uniform vec4 u_Color; // The color with which to render this instance of geometry.
 
+uniform float u_Time; // The time value
+
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
 in vec4 fs_Nor;
@@ -27,6 +29,28 @@ void main()
 {
     // Material base color (before shading)
         vec4 diffuseColor = u_Color;
+
+
+        float radius = 0.1;
+        float spacing = 0.25;
+        float posX = fs_Pos.x;
+
+        posX = posX + u_Time/500.0;
+
+
+        vec4 center = vec4(0.0, 0.0, 0.0, 1.0);
+        center.x = round(posX/spacing) * spacing;
+        center.y = round(fs_Pos.y/spacing) * spacing;
+        center.z = round(fs_Pos.z/spacing) * spacing;
+
+        float distance = (posX - center.x) * (posX - center.x)
+                       + (fs_Pos.y - center.y) * (fs_Pos.y - center.y)
+                       + (fs_Pos.z - center.z) * (fs_Pos.z - center.z);
+
+        if(distance < radius * radius) {
+            diffuseColor.a = 0.5;
+        }
+
 
         // Calculate the diffuse term for Lambert shading
         float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));

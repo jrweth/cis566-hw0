@@ -107,6 +107,11 @@ class ShaderProgram {
     this.initGl();
   }
 
+  setFragmentShader(fragmentShader: Shader) {
+    this.fragmentShader = fragmentShader;
+    this.initGl();
+  }
+
   draw(d: Drawable) {
     this.use();
 
