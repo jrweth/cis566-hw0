@@ -6,11 +6,14 @@ class Square extends Drawable {
   indices: Uint32Array;
   positions: Float32Array;
   normals: Float32Array;
+  colors: Float32Array;
   center: vec4;
+  color: vec4;
 
-  constructor(center: vec3) {
+  constructor(center: vec3, color: vec4) {
     super(); // Call the constructor of the super class. This is required.
     this.center = vec4.fromValues(center[0], center[1], center[2], 1);
+    this.color = color;
   }
 
   create() {
@@ -106,6 +109,15 @@ class Square extends Drawable {
 
     ]);
 
+    //initialize colors
+    let tmpColors = [];
+    for(let i=0; i < 24; i++) {
+      for(let j=0; j < 4; j++) {
+        tmpColors.push(this.color[j]);
+      }
+    }
+    this.colors = new Float32Array(tmpColors);
+
     //adjust positions to proscribed center
     for(let i =0; i < 24; i++) {
       this.positions[i*4] += this.center[0];
@@ -117,6 +129,7 @@ class Square extends Drawable {
     this.generateIdx();
     this.generatePos();
     this.generateNor();
+    this.generateCol();
 
     this.count = this.indices.length;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdx);
@@ -128,7 +141,20 @@ class Square extends Drawable {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufPos);
     gl.bufferData(gl.ARRAY_BUFFER, this.positions, gl.STATIC_DRAW);
 
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
+    gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
+
     console.log(`Created square`);
+  }
+  setColor(color: vec4) {
+    this.color = color;
+    for(let i = 0; i < 24; i++) {
+      for(let j = 0; j < 4; j++) {
+        this.colors[i*4 + j] = color[j];
+      }
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
+    gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
   }
 };
 

@@ -7,11 +7,14 @@ class Icosphere extends Drawable {
   indices: Uint32Array;
   positions: Float32Array;
   normals: Float32Array;
+  colors: Float32Array;
   center: vec4;
+  color: vec4;
 
-  constructor(center: vec3, public radius: number, public subdivisions: number) {
+  constructor(center: vec3, public radius: number, public subdivisions: number, color: vec4) {
     super(); // Call the constructor of the super class. This is required.
     this.center = vec4.fromValues(center[0], center[1], center[2], 1);
+    this.color = color;
   }
 
   create() {
@@ -28,6 +31,7 @@ class Icosphere extends Drawable {
     const buffer0 = new ArrayBuffer(
       maxIndexCount * 3 * Uint32Array.BYTES_PER_ELEMENT +
       maxVertexCount * 4 * Float32Array.BYTES_PER_ELEMENT +
+      maxVertexCount * 4 * Float32Array.BYTES_PER_ELEMENT +
       maxVertexCount * 4 * Float32Array.BYTES_PER_ELEMENT
     );
     const buffer1 = new ArrayBuffer(
@@ -40,6 +44,7 @@ class Icosphere extends Drawable {
     const vertexByteOffset = maxIndexCount * 3 * Uint32Array.BYTES_PER_ELEMENT;
     const normalByteOffset = vertexByteOffset;
     const positionByteOffset = vertexByteOffset + maxVertexCount * 4 * Float32Array.BYTES_PER_ELEMENT;
+    const colorByteOffset = positionByteOffset + maxVertexCount * 4 * Float32Array.BYTES_PER_ELEMENT;
 
     // Create 3-uint buffer views into the backing buffer to represent triangles
     // The C++ analogy to this would be something like:
@@ -153,14 +158,22 @@ class Icosphere extends Drawable {
       vec4.scaleAndAdd(pos, this.center, vertices[i], this.radius);
     }
 
+    // Populate one color for each normal
+    for (let i = 0; i < vertices.length; ++i) {
+      let col = <vec4> new Float32Array(buffer0, colorByteOffset + i * 4 * Float32Array.BYTES_PER_ELEMENT, 4);
+      vec4.copy(col, this.color);
+    }
+
     this.buffer = buffer0;
     this.indices = new Uint32Array(this.buffer, indexByteOffset, triangles.length * 3);
     this.normals = new Float32Array(this.buffer, normalByteOffset, vertices.length * 4);
     this.positions = new Float32Array(this.buffer, positionByteOffset, vertices.length * 4);
+    this.colors = new Float32Array(this.buffer, colorByteOffset, vertices.length * 4);
 
     this.generateIdx();
     this.generatePos();
     this.generateNor();
+    this.generateCol();
 
     this.count = this.indices.length;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdx);
@@ -172,7 +185,21 @@ class Icosphere extends Drawable {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufPos);
     gl.bufferData(gl.ARRAY_BUFFER, this.positions, gl.STATIC_DRAW);
 
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
+    gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
+
     console.log(`Created icosphere with ${vertices.length} vertices`);
+  }
+
+  setColor(color: vec4) {
+    this.color = color;
+    for(let i = 0; i < this.colors.length; i++) {
+      for(let j = 0; j < 4; j++) {
+        this.colors[i*4 + j] = color[j];
+      }
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
+    gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
   }
 };
 

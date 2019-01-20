@@ -13,7 +13,8 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 const controls = {
   tesselations: 5,
   'Load Scene': loadScene, // A function pointer, essentially
-  'Color Red': 0.0,
+  'Speed': 1.0,
+  'Color Red': 0.1,
   'Color Green': 0.5,
   'Color Blue': 1.0,
   'Alpha': 1.0,
@@ -21,6 +22,7 @@ const controls = {
   'Fragment Shader': 'lambert'
 };
 
+let color: vec4 = vec4.fromValues(controls["Color Red"], controls["Color Green"], controls["Color Blue"], controls.Alpha);
 let icosphere: Icosphere;
 let square: Square;
 let prevTesselations: number = 5;
@@ -28,9 +30,9 @@ let prevVertexShader: string = 'lambert';
 let prevFragmentShader: string = 'lambert';
 
 function loadScene() {
-  icosphere = new Icosphere(vec3.fromValues(2, 0, 0), 1, controls.tesselations);
+  icosphere = new Icosphere(vec3.fromValues(2, 0, 0), 1, controls.tesselations, color);
   icosphere.create();
-  square = new Square(vec3.fromValues(-2, 0, 0));
+  square = new Square(vec3.fromValues(-2, 0, 0), color);
   square.create();
 }
 
@@ -47,12 +49,13 @@ function main() {
   const gui = new DAT.GUI();
   gui.add(controls, 'tesselations', 0, 8).step(1);
   gui.add(controls, 'Load Scene');
-  gui.add(controls, 'Color Red', 0, 1).step(0.1);
-  gui.add(controls, 'Color Green', 0, 1).step(0.1);
-  gui.add(controls, 'Color Blue', 0,1).step(0.1);
-  gui.add(controls, 'Alpha', 0,1).step(0.1);
-  gui.add(controls, 'Vertex Shader',['lambert', 'wave', 'rotate']);
-  gui.add(controls, 'Fragment Shader',['lambert', 'polka-dot']);
+  gui.add(controls, 'Speed', {'1/10': 0.1, '1/4': 0.25, '1/2': 0.5, 'normal': 1.0, 'x2': 2.0, 'x4': 4.0, 'x10': 10.0});
+  gui.add(controls, 'Color Red', 0.0, 1.0).step(0.1);
+  gui.add(controls, 'Color Green', 0.0, 1.0).step(0.1);
+  gui.add(controls, 'Color Blue', 0.0,1.0).step(0.1);
+  gui.add(controls, 'Alpha', 0.0,1.0).step(0.1);
+  gui.add(controls, 'Vertex Shader',['lambert', 'wave', 'rotate', 'pass-through']);
+  gui.add(controls, 'Fragment Shader',['lambert', 'polka-dot', 'color-splitscreen']);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -92,11 +95,13 @@ function main() {
       controls["Color Blue"],
       controls["Alpha"]
     );
-    renderer.setTime(time);
+    renderer.setTime(time * controls.Speed);
+    icosphere.setColor(vec4.fromValues(controls["Color Red"],controls["Color Green"], controls["Color Blue"], controls.Alpha));
+    square.setColor(vec4.fromValues(controls["Color Red"],controls["Color Green"], controls["Color Blue"], controls.Alpha));
     if(controls.tesselations != prevTesselations)
     {
       prevTesselations = controls.tesselations;
-      icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, prevTesselations);
+      icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, prevTesselations, color);
       icosphere.create();
     }
     if(controls["Vertex Shader"] != prevVertexShader) {

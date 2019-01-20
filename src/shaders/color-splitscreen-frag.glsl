@@ -30,30 +30,18 @@ void main()
     // Material base color (before shading)
         vec4 diffuseColor = u_Color;
 
+        vec4 color2 = u_Color + vec4(0.5, 0.5, 0.5, 0.0);
+        if(color2.r > 1.0) color2.r -= 1.0;
+        if(color2.g > 1.0) color2.g -= 1.0;
+        if(color2.b > 1.0) color2.b -= 1.0;
 
-        float radius = 0.2;
-        float spacing = 0.5;
-        float posX = fs_Pos.x;
+        if(fs_Pos.x < -0.3) diffuseColor = color2;
+        if(fs_Pos.x > -0.3 && fs_Pos.x < 0.3) {
+           //lerp
+           diffuseColor = (fs_Pos.x + 0.3) * 1.666 * diffuseColor + (0.3 - fs_Pos.x) * 1.666 * color2 ;
+           diffuseColor.a = 1.0;
 
-        posX = posX + u_Time/200.0;
-
-
-        vec4 center = vec4(0.0, 0.0, 0.0, 1.0);
-        center.x = round(posX/spacing) * spacing;
-        center.y = round(fs_Pos.y/spacing) * spacing;
-        center.z = round(fs_Pos.z/spacing) * spacing;
-
-        float distance = (posX - center.x) * (posX - center.x)
-                       + (fs_Pos.y - center.y) * (fs_Pos.y - center.y)
-                       + (fs_Pos.z - center.z) * (fs_Pos.z - center.z);
-
-        if(distance < radius * radius) {
-            diffuseColor += vec4(0.5, 0.5, 0.5, 0.0);
-            if(diffuseColor.r > 1.0) diffuseColor.r -= 1.0;
-            if(diffuseColor.g > 1.0) diffuseColor.g -= 1.0;
-            if(diffuseColor.b > 1.0) diffuseColor.b -= 1.0;
         }
-
 
         // Calculate the diffuse term for Lambert shading
         float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));
