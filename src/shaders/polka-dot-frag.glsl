@@ -31,8 +31,8 @@ void main()
         vec4 diffuseColor = u_Color;
 
 
-        float radius = 0.2;
-        float spacing = 0.5;
+        float radius = 0.3;
+        float spacing = 0.9;
         float posX = fs_Pos.x;
 
         posX = posX + u_Time/200.0;

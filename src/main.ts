@@ -101,7 +101,7 @@ function main() {
     if(controls.tesselations != prevTesselations)
     {
       prevTesselations = controls.tesselations;
-      icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, prevTesselations, color);
+      icosphere = new Icosphere(vec3.fromValues(2, 0, 0), 1, prevTesselations, color);
       icosphere.create();
     }
     if(controls["Vertex Shader"] != prevVertexShader) {

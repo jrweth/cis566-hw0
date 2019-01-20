@@ -151,16 +151,17 @@ class Square extends Drawable {
 
   setColor(color: vec4) {
     this.color = color;
-    for(let i = 0; i < 24; i++) {
-      for(let j = 0; j < 4; j++) {
-        if(j == 3) {
-          this.colors[i*4 + j] = this.color[3];
-        }
-        else {
-          this.colors[i*4 + j] = Math.random();
+    for(let x of [-1, 1]){ for (let y of [-1, 1]) {for(let z of [-1, 1]){
+      let randColor: vec4 = vec4.fromValues(Math.random(), Math.random(), Math.random(), color[3]);
+
+      for(let i = 0; i < 24; i++) {
+        if(this.positions[i*4] == x && this.positions[i*4 + 1] == y && this.positions[i*4 + 2] == z) {
+          for(let j = 0; j < 4; j++) {
+            this.colors[i*4 + j] = randColor[j];
+          }
         }
       }
-    }
+    }}}
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
     gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
   }
