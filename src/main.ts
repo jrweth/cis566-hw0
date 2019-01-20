@@ -55,7 +55,7 @@ function main() {
   gui.add(controls, 'Color Blue', 0.0,1.0).step(0.1);
   gui.add(controls, 'Alpha', 0.0,1.0).step(0.1);
   gui.add(controls, 'Vertex Shader',['lambert', 'wave', 'rotate', 'pass-through']);
-  gui.add(controls, 'Fragment Shader',['lambert', 'polka-dot', 'color-splitscreen']);
+  gui.add(controls, 'Fragment Shader',['lambert', 'polka-dot', 'color-splitscreen', 'random-lerp']);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -96,8 +96,8 @@ function main() {
       controls["Alpha"]
     );
     renderer.setTime(time * controls.Speed);
-    icosphere.setColor(vec4.fromValues(controls["Color Red"],controls["Color Green"], controls["Color Blue"], controls.Alpha));
-    square.setColor(vec4.fromValues(controls["Color Red"],controls["Color Green"], controls["Color Blue"], controls.Alpha));
+    //icosphere.setColor(vec4.fromValues(controls["Color Red"],controls["Color Green"], controls["Color Blue"], controls.Alpha));
+    //square.setColor(vec4.fromValues(controls["Color Red"],controls["Color Green"], controls["Color Blue"], controls.Alpha));
     if(controls.tesselations != prevTesselations)
     {
       prevTesselations = controls.tesselations;

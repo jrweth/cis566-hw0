@@ -125,6 +125,8 @@ class Square extends Drawable {
       this.positions[i*4 + 2] += this.center[2];
     }
 
+    this.setColor(this.color);
+
 
     this.generateIdx();
     this.generatePos();
@@ -146,11 +148,17 @@ class Square extends Drawable {
 
     console.log(`Created square`);
   }
+
   setColor(color: vec4) {
     this.color = color;
     for(let i = 0; i < 24; i++) {
       for(let j = 0; j < 4; j++) {
-        this.colors[i*4 + j] = color[j];
+        if(j == 3) {
+          this.colors[i*4 + j] = this.color[3];
+        }
+        else {
+          this.colors[i*4 + j] = Math.random();
+        }
       }
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);

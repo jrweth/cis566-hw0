@@ -1,6 +1,7 @@
 import {vec3, vec4} from 'gl-matrix';
 import Drawable from '../rendering/gl/Drawable';
 import {gl} from '../globals';
+let noise = require('noisejs');
 
 class Icosphere extends Drawable {
   buffer: ArrayBuffer;
@@ -164,11 +165,14 @@ class Icosphere extends Drawable {
       vec4.copy(col, this.color);
     }
 
+
     this.buffer = buffer0;
     this.indices = new Uint32Array(this.buffer, indexByteOffset, triangles.length * 3);
     this.normals = new Float32Array(this.buffer, normalByteOffset, vertices.length * 4);
     this.positions = new Float32Array(this.buffer, positionByteOffset, vertices.length * 4);
     this.colors = new Float32Array(this.buffer, colorByteOffset, vertices.length * 4);
+
+    this.setColor(this.color);
 
     this.generateIdx();
     this.generatePos();
@@ -193,9 +197,15 @@ class Icosphere extends Drawable {
 
   setColor(color: vec4) {
     this.color = color;
+    let n = new noise.Noise(123);
     for(let i = 0; i < this.colors.length; i++) {
       for(let j = 0; j < 4; j++) {
-        this.colors[i*4 + j] = color[j];
+        if (j == 3) {
+          this.colors[i * 4 + j] = this.color[3];
+        }
+        else {
+          this.colors[i * 4 + j] = Math.random();
+        }
       }
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
