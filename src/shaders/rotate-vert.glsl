@@ -47,8 +47,23 @@ void main()
                                                             // perpendicular to the surface after the surface is transformed by
                                                             // the model matrix.
 
-    tmpPos.y += (sin(vs_Pos.x*10.0 + u_Time/50.0) + 1.1) * 0.2 * vs_Pos.y;
-    tmpPos.z += (sin(vs_Pos.x*10.0 + u_Time/50.0) + 1.1) * 0.2 * vs_Pos.z;
+    //bring toward the center
+    if(tmpPos.x < 0.0) tmpPos.x += sin(u_Time/10.0);
+    if(tmpPos.x > 0.0) tmpPos.x -= sin(u_Time/10.0);
+
+    float angle = u_Time / 100.0;
+    mat4 xRotation = mat4(1, 0, 0, 0,
+                          0, cos(angle), sin(angle), 0,
+                          0, -sin(angle), cos(angle), 0,
+                          0, 0, 0, 1);
+    mat4 zRotation = mat4(cos(angle), sin(angle), 0, 0,
+                     -sin(angle), cos(angle), 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1);
+
+    tmpPos = zRotation * xRotation * tmpPos;
+
+
     fs_Pos = tmpPos;                         // Pass the vertex colors to the fragment shader for interpolation
 
     vec4 modelposition = u_Model * tmpPos;   // Temporarily store the transformed vertex positions for use below

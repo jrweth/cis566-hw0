@@ -35,7 +35,7 @@ void main()
         float spacing = 0.5;
         float posX = fs_Pos.x;
 
-        posX = posX + u_Time/500.0;
+        posX = posX + u_Time/200.0;
 
 
         vec4 center = vec4(0.0, 0.0, 0.0, 1.0);
