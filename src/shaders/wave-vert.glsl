@@ -49,6 +49,7 @@ void main()
                                                             // the model matrix.
 
     tmpPos.y += (sin(vs_Pos.x*10.0 + u_Time/50.0) + 1.1) * 0.2 * vs_Pos.y;
+    tmpPos.z += (sin(vs_Pos.x*10.0 + u_Time/50.0) + 1.1) * 0.2 * vs_Pos.z;
 
     vec4 modelposition = u_Model * tmpPos;   // Temporarily store the transformed vertex positions for use below
 
