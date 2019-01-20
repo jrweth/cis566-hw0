@@ -31,8 +31,8 @@ void main()
         vec4 diffuseColor = u_Color;
 
 
-        float radius = 0.1;
-        float spacing = 0.25;
+        float radius = 0.2;
+        float spacing = 0.5;
         float posX = fs_Pos.x;
 
         posX = posX + u_Time/500.0;
@@ -48,7 +48,11 @@ void main()
                        + (fs_Pos.z - center.z) * (fs_Pos.z - center.z);
 
         if(distance < radius * radius) {
-            diffuseColor.a = 0.5;
+            diffuseColor.r = diffuseColor.r + 0.5; //* (diffuseColor.r < 0.5 ? 1.0 : -1.0);
+            if(diffuseColor.r > 1.0) diffuseColor.r -= 1.0;
+            diffuseColor.g = diffuseColor.g + 0.5;
+            if(diffuseColor.g > 1.0) diffuseColor.g -= 1.0;
+            diffuseColor.b = diffuseColor.b + 0.5 * (diffuseColor.b < 0.5 ? 1.0 : -1.0);
         }
 
 

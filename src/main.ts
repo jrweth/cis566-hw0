@@ -13,19 +13,19 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 const controls = {
   tesselations: 5,
   'Load Scene': loadScene, // A function pointer, essentially
-  'Color Red': 1,
-  'Color Green': 0,
-  'Color Blue': 0,
-  'Alpha': 1,
+  'Color Red': 0.0,
+  'Color Green': 0.5,
+  'Color Blue': 1.0,
+  'Alpha': 1.0,
   'Vertex Shader': 'lambert',
-  'Fragment Shader': 'polka-dot'
+  'Fragment Shader': 'lambert'
 };
 
 let icosphere: Icosphere;
 let square: Square;
 let prevTesselations: number = 5;
 let prevVertexShader: string = 'lambert';
-let prevFragmentShader: string = 'polka-dot';
+let prevFragmentShader: string = 'lambert';
 
 function loadScene() {
   icosphere = new Icosphere(vec3.fromValues(2, 0, 0), 1, controls.tesselations);
@@ -51,7 +51,7 @@ function main() {
   gui.add(controls, 'Color Green', 0, 1).step(0.1);
   gui.add(controls, 'Color Blue', 0,1).step(0.1);
   gui.add(controls, 'Alpha', 0,1).step(0.1);
-  gui.add(controls, 'Vertex Shader',['lambert', 'wave']);
+  gui.add(controls, 'Vertex Shader',['lambert', 'wave', 'rotate']);
   gui.add(controls, 'Fragment Shader',['lambert', 'polka-dot']);
 
   // get canvas and webgl context
