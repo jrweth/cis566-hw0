@@ -19,7 +19,7 @@ const controls = {
   'Color Blue': 1.0,
   'Alpha': 1.0,
   'Vertex Shader': 'lambert',
-  'Fragment Shader': 'lambert'
+  'Fragment Shader': 'noise'
 };
 
 let color: vec4 = vec4.fromValues(controls["Color Red"], controls["Color Green"], controls["Color Blue"], controls.Alpha);
@@ -55,7 +55,7 @@ function main() {
   gui.add(controls, 'Color Blue', 0.0,1.0).step(0.1);
   gui.add(controls, 'Alpha', 0.0,1.0).step(0.1);
   gui.add(controls, 'Vertex Shader',['lambert', 'wave', 'rotate', 'pass-through']);
-  gui.add(controls, 'Fragment Shader',['lambert', 'polka-dot', 'color-splitscreen', 'random-lerp']);
+  gui.add(controls, 'Fragment Shader',['lambert', 'polka-dot', 'color-splitscreen', 'random-lerp', 'noise']);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
