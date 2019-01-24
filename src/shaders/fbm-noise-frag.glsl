@@ -13,6 +13,7 @@ precision highp float;
 
 uniform vec4 u_Color; // The color with which to render this instance of geometry.
 
+uniform float u_Time;
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
 in vec4 fs_Nor;
@@ -103,7 +104,6 @@ float fbm2to1(vec2 p) {
     for(float i = 0.0; i < octaves; i++) {
         float freq = pow(2.0, i);
         float amp = pow(persistence, i);
-        //if(i == 4.0) total += interpNoiseRandom2d(vec2(p.x * freq, p.y * freq)) * amp;
         total = total + interpNoiseRandom2d(vec2(p.x * freq, p.y * freq)) * amp;
     }
     return total;
@@ -118,26 +118,29 @@ float fbm3to1(vec3 p) {
     for(float i = 0.0; i < octaves; i++) {
         float freq = pow(2.0, i);
         float amp = pow(persistence, i);
-        total += interpNoiseRandom3to1(p*3.0) * amp;
+        total += interpNoiseRandom3to1(p*freq) * amp;
     }
-    return fract(total);
+    return total;
 }
 
 void main()
 {
     // Material base color (before shading)
 
-        //float color = noiseRandom2to1(vec2(fs_Pos.x, fs_Pos.y));
-        //float color = noiseRandom2to1(vec2(floor(fs_Pos.x), floor(fs_Pos.y)));
-        //float color = interpNoiseRandom2d(vec2(fs_Pos.x, fs_Pos.y));
-        float color = fbm2to1(vec2(fs_Pos.x, fs_Pos.y));
-        vec4 diffuseColor = vec4(color, color, color, u_Color[3]);
+        vec4 diffuseColor = vec4(0.0, 0.0, 0.0, u_Color[3]);
+        diffuseColor.r = fbm3to1(vec3(fs_Pos.x, fs_Pos.y, fs_Pos.z));
+        diffuseColor.g = fbm3to1(vec3(fs_Pos.x, fs_Pos.y + 4343.3434, fs_Pos.z));
+        diffuseColor.b = fbm3to1(vec3(fs_Pos.x, fs_Pos.y + 93433.343, fs_Pos.z));
+
+        vec4 color2 = vec4(0.0, 0.0, 0.0, u_Color[3]);
+        color2.r = fbm3to1(vec3(fs_Pos.x + u_Time/100.0, fs_Pos.y, fs_Pos.z));
+        color2.g = fbm3to1(vec3(fs_Pos.x + u_Time/100.0, fs_Pos.y + 43.34, fs_Pos.z));
+        color2.b = fbm3to1(vec3(fs_Pos.x + u_Time/100.0, fs_Pos.y + 933.343, fs_Pos.z));
+
+        diffuseColor = mix(diffuseColor, color2, 0.4);
 
 
 
-//        diffuseColor.r = noiseRandom2to1(vec2(fs_Pos.x, fs_Pos.y));
-//        diffuseColor.g = noiseRandom2to1(vec2(fs_Pos.x, fs_Pos.y + 4343.3434));
-//        diffuseColor.b = noiseRandom2to1(vec2(fs_Pos.x, fs_Pos.y + 93433.343));
 
         // Calculate the diffuse term for Lambert shading
         float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));
