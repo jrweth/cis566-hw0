@@ -31,16 +31,20 @@ vec3 noiseRandom3to3(vec3 p){
     )) * 43758.1234);
 }
 
+float noiseRandom3to1(vec3 p) {
+   return fract(sin(dot(p, vec3(123.2, 311.7, 32.12)))*43758.5453);
+}
+
 float noiseRandom2to1(vec2 p) {
    return fract(sin(dot(p, vec2(123.2, 311.7)))*43758.5453);
 }
 
-float interpNoiseRandom2d(float x, float y) {
-    float fractX = fract(x);
-    float x1 = x - fractX;
+float interpNoiseRandom2d(vec2 p) {
+    float fractX = fract(p.x);
+    float x1 = p.x - fractX;
     float x2 = x1 + 1.0;
-    float fractY = fract(y);
-    float y1 = y - fractY;
+    float fractY = fract(p.y);
+    float y1 = p.y - fractY;
     float y2 = y1 + 1.0;
 
     float v1 = noiseRandom2to1(vec2(x1, y1));
@@ -55,9 +59,43 @@ float interpNoiseRandom2d(float x, float y) {
 
 }
 
+float interpNoiseRandom3to1(vec3 p) {
+    float fractX = fract(p.x);
+    float x1 = floor(p.x);
+    float x2 = x1 + 1.0;
+
+    float fractY = fract(p.y);
+    float y1 = floor(p.y);
+    float y2 = y1 + 1.0;
 
 
-float fbm2d(vec2 p) {
+    float fractZ = fract(p.z);
+    float z1 = floor(p.z);
+    float z2 = z1 + 1.0;
+
+    float v1 = noiseRandom3to1(vec3(x1, y1, z1));
+    float v2 = noiseRandom3to1(vec3(x2, y1, z1));
+    float v3 = noiseRandom3to1(vec3(x1, y2, z1));
+    float v4 = noiseRandom3to1(vec3(x2, y2, z1));
+
+    float v5 = noiseRandom3to1(vec3(x1, y1, z2));
+    float v6 = noiseRandom3to1(vec3(x2, y1, z2));
+    float v7 = noiseRandom3to1(vec3(x1, y2, z2));
+    float v8 = noiseRandom3to1(vec3(x2, y2, z2));
+
+    float i1 = mix(v1, v2, fractX);
+    float i2 = mix(v3, v4, fractX);
+    float i3 = mix(v5, v6, fractX);
+    float i4 = mix(v7, v8, fractX);
+
+    float i5 = mix(i1, i2, fractY);
+    float i6 = mix(i3, i4, fractY);
+
+    return mix(i5, i6, fractZ);
+
+}
+
+float fbm2to1(vec2 p) {
     float total  = 0.0;
     float persistence = 0.5;
     float octaves = 8.0;
@@ -65,19 +103,37 @@ float fbm2d(vec2 p) {
     for(float i = 0.0; i < octaves; i++) {
         float freq = pow(2.0, i);
         float amp = pow(persistence, i);
-        total += interpNoiseRandom2d(p.x, p.y) * amp;
+        //if(i == 4.0) total += interpNoiseRandom2d(vec2(p.x * freq, p.y * freq)) * amp;
+        total = total + interpNoiseRandom2d(vec2(p.x * freq, p.y * freq)) * amp;
     }
     return total;
+}
+
+
+float fbm3to1(vec3 p) {
+    float total  = 0.0;
+    float persistence = 0.5;
+    float octaves = 3.0;
+
+    for(float i = 0.0; i < octaves; i++) {
+        float freq = pow(2.0, i);
+        float amp = pow(persistence, i);
+        total += interpNoiseRandom3to1(p*3.0) * amp;
+    }
+    return fract(total);
 }
 
 void main()
 {
     // Material base color (before shading)
-        vec4 diffuseColor = u_Color;
 
-        diffuseColor.r = fbm2d(vec2(fs_Pos.x, fs_Pos.y));
-        diffuseColor.g = fbm2d(vec2(fs_Pos.x, fs_Pos.y + 343.343));
-        diffuseColor.b = fbm2d(vec2(fs_Pos.x, fs_Pos.y + 33.33));
+        //float color = noiseRandom2to1(vec2(fs_Pos.x, fs_Pos.y));
+        //float color = noiseRandom2to1(vec2(floor(fs_Pos.x), floor(fs_Pos.y)));
+        //float color = interpNoiseRandom2d(vec2(fs_Pos.x, fs_Pos.y));
+        float color = fbm2to1(vec2(fs_Pos.x, fs_Pos.y));
+        vec4 diffuseColor = vec4(color, color, color, u_Color[3]);
+
+
 
 //        diffuseColor.r = noiseRandom2to1(vec2(fs_Pos.x, fs_Pos.y));
 //        diffuseColor.g = noiseRandom2to1(vec2(fs_Pos.x, fs_Pos.y + 4343.3434));
