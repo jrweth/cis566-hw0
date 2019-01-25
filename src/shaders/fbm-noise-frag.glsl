@@ -40,6 +40,22 @@ float noiseRandom2to1(vec2 p) {
    return fract(sin(dot(p, vec2(123.2, 311.7)))*43758.5453);
 }
 
+float noiseRandom1to1(float p) {
+   return fract(sin(p)*343.1234);
+}
+
+float interpNoiseRandom1d(float p) {
+    float fractP = fract(p);
+    float p1 = floor(p);
+    float p2 = p1 + 1.0;
+
+    float v1 = noiseRandom1to1(p1);
+    float v2 = noiseRandom1to1(p2);
+
+    return smoothstep(v1, v2, fractP);
+
+}
+
 float interpNoiseRandom2d(vec2 p) {
     float fractX = fract(p.x);
     float x1 = p.x - fractX;
@@ -53,10 +69,10 @@ float interpNoiseRandom2d(vec2 p) {
     float v3 = noiseRandom2to1(vec2(x1, y2));
     float v4 = noiseRandom2to1(vec2(x2, y2));
 
-    float i1 = mix(v1, v2, fractX);
-    float i2 = mix(v3, v4, fractX);
+    float i1 = smoothstep(v1, v2, fractX);
+    float i2 = smoothstep(v3, v4, fractX);
 
-    return mix(i1, i2, fractY);
+    return smoothstep(i1, i2, fractY);
 
 }
 
@@ -96,6 +112,20 @@ float interpNoiseRandom3to1(vec3 p) {
 
 }
 
+float fbm1to1(float p) {
+    float total  = 0.0;
+    float persistence = 0.5;
+    float octaves = 8.0;
+
+    for(float i = 0.0; i < octaves; i++) {
+        float freq = pow(2.0, i);
+        float amp = pow(persistence, i);
+        total = total + interpNoiseRandom1d(p * freq) * amp;
+    }
+    return total;
+
+}
+
 float fbm2to1(vec2 p) {
     float total  = 0.0;
     float persistence = 0.5;
@@ -125,19 +155,22 @@ float fbm3to1(vec3 p) {
 
 void main()
 {
-    // Material base color (before shading)
+        // Material base color (before shading)
 
-        vec4 diffuseColor = vec4(0.0, 0.0, 0.0, u_Color[3]);
-        diffuseColor.r = fbm3to1(vec3(fs_Pos.x, fs_Pos.y, fs_Pos.z));
-        diffuseColor.g = fbm3to1(vec3(fs_Pos.x, fs_Pos.y + 4343.3434, fs_Pos.z));
-        diffuseColor.b = fbm3to1(vec3(fs_Pos.x, fs_Pos.y + 93433.343, fs_Pos.z));
+        vec3 positionWarp = vec3(
+           fbm3to1(vec3(fs_Pos.x + u_Time/100.0, fs_Pos.y, fs_Pos.z)),
+           fbm3to1(vec3(fs_Pos.x, fs_Pos.y + u_Time/100.0, fs_Pos.z)),
+           fbm3to1(vec3(fs_Pos.x, fs_Pos.y, fs_Pos.z + u_Time/100.0))
+        );
 
-        vec4 color2 = vec4(0.0, 0.0, 0.0, u_Color[3]);
-        color2.r = fbm3to1(vec3(fs_Pos.x + u_Time/100.0, fs_Pos.y, fs_Pos.z));
-        color2.g = fbm3to1(vec3(fs_Pos.x + u_Time/100.0, fs_Pos.y + 43.34, fs_Pos.z));
-        color2.b = fbm3to1(vec3(fs_Pos.x + u_Time/100.0, fs_Pos.y + 933.343, fs_Pos.z));
 
-        diffuseColor = mix(diffuseColor, color2, 0.4);
+        float positionNoise = fbm3to1(vec3(
+            positionWarp.x,
+            positionWarp.y,
+            positionWarp.z));
+        vec4 diffuseColor = u_Color * positionNoise;
+
+        diffuseColor[3] = u_Color[3];
 
 
 
